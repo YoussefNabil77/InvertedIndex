@@ -31,17 +31,31 @@ public class Index5 {
     public HashMap<String, DictEntry> index; // THe inverted index
     //--------------------------------------------
 
+    /**
+     * Initializes a new Index5 instance, creating empty hashmaps
+     * for the sources and the inverted index.
+     */
     public Index5() {
         sources = new HashMap<Integer, SourceRecord>();
         index = new HashMap<String, DictEntry>();
     }
 
+    /**
+     * Sets the total number of documents in the collection.
+     *
+     * @param n the number of documents
+     */
     public void setN(int n) {
         N = n;
     }
 
 
     //---------------------------------------------
+    /**
+     * Prints the document IDs of a posting list in a comma-separated format.
+     *
+     * @param p the head of the posting list to print
+     */
     public void printPostingList(Posting p) {
         System.out.print("[");
         while (p != null) {
@@ -55,6 +69,10 @@ public class Index5 {
     }
 
     //---------------------------------------------
+    /**
+     * Prints the entire dictionary and its associated posting lists,
+     * including term strings, document frequencies, and the list of document IDs.
+     */
     public void printDictionary() {
         Iterator it = index.entrySet().iterator();
         while (it.hasNext()) {
@@ -68,6 +86,12 @@ public class Index5 {
     }
  
     //-----------------------------------------------
+    /**
+     * Reads a list of local file paths and builds the inverted index by
+     * processing each document line by line.
+     *
+     * @param files an array of file paths to read and index
+     */
     public void buildIndex(String[] files) {  // from disk not from the internet
         int fid = 0;
         for (String fileName : files) {
@@ -78,7 +102,7 @@ public class Index5 {
                 String ln;
                 int flen = 0;
                 while ((ln = file.readLine()) != null) {
-                    flen += indexOneLine(ln, fid);
+                    flen += indexOneLine(ln, fid, flen);
                 }
                 sources.get(fid).length = flen;
 
@@ -91,15 +115,25 @@ public class Index5 {
     }
 
     //----------------------------------------------------------------------------  
-    public int indexOneLine(String ln, int fid) {
+    /**
+     * Parses a single line of text from a document, ignoring stop words,
+     * stemming valid terminology, and updating the dictionary and posting lists.
+     *
+     * @param ln  the line of text to process
+     * @param fid the document ID the line belongs to
+     * @return the number of valid tokens found in the line
+     */
+    public int indexOneLine(String ln, int fid, int pos_offset) {
         int flen = 0;
 
         String[] words = ln.split("\\W+");
       //   String[] words = ln.replaceAll("(?:[^a-zA-Z0-9 -]|(?<=\\w)-(?!\\S))", " ").toLowerCase().split("\\s+");
         flen += words.length;
+        int word_pos = pos_offset;
         for (String word : words) {
             word = word.toLowerCase();
             if (stopWord(word)) {
+                word_pos++;
                 continue;
             }
             word = stemWord(word);
@@ -113,13 +147,16 @@ public class Index5 {
                 index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term 
                 if (index.get(word).pList == null) {
                     index.get(word).pList = new Posting(fid);
+                    index.get(word).pList.positions.add(word_pos);
                     index.get(word).last = index.get(word).pList;
                 } else {
                     index.get(word).last.next = new Posting(fid);
+                    index.get(word).last.next.positions.add(word_pos);
                     index.get(word).last = index.get(word).last.next;
                 }
             } else {
                 index.get(word).last.dtf += 1;
+                index.get(word).last.positions.add(word_pos);
             }
             //set the term_fteq in the collection
             index.get(word).term_freq += 1;
@@ -127,12 +164,20 @@ public class Index5 {
 
                 System.out.println("  <<" + index.get(word).getPosting(1) + ">> " + ln);
             }
+            word_pos++;
 
         }
         return flen;
     }
 
 //----------------------------------------------------------------------------  
+    /**
+     * Checks whether a given word is a stop word or is too short 
+     * to be indexed.
+     *
+     * @param word the word to check
+     * @return true if the word should be ignored, false otherwise
+     */
     boolean stopWord(String word) {
         if (word.equals("the") || word.equals("to") || word.equals("be") || word.equals("for") || word.equals("from") || word.equals("in")
                 || word.equals("a") || word.equals("into") || word.equals("by") || word.equals("or") || word.equals("and") || word.equals("that")) {
@@ -146,6 +191,12 @@ public class Index5 {
     }
 //----------------------------------------------------------------------------  
 
+    /**
+     * Reduces a given word to its stem root. (Currently skips stemming).
+     *
+     * @param word the word to stem
+     * @return the stemmed word
+     */
     String stemWord(String word) { //skip for now
         return word;
 //        Stemmer s = new Stemmer();
@@ -155,6 +206,13 @@ public class Index5 {
     }
 
     //----------------------------------------------------------------------------  
+    /**
+     * Computes the intersection of two sorted posting lists.
+     *
+     * @param pL1 the head of the first posting list
+     * @param pL2 the head of the second posting list
+     * @return a new posting list representing the intersection
+     */
     Posting intersect(Posting pL1, Posting pL2) {
 ///****  -1-   complete after each comment ****
 //   INTERSECT ( p1 , p2 )
@@ -203,6 +261,13 @@ public class Index5 {
         return answer;
     }
 
+    /**
+     * Queries the index for a multi-term phrase by computing intersections
+     * iteratively. Returns a formatted string with the matching document results.
+     *
+     * @param phrase the string containing the search terms
+     * @return an aggregated string displaying related documents and metadata
+     */
     public String find_24_01(String phrase) { // any mumber of terms non-optimized search 
         String result = "";
         String[] words = phrase.split("\\W+");
@@ -231,6 +296,12 @@ public class Index5 {
     
     
     //---------------------------------
+    /**
+     * Sorts an array of strings in alphabetical order using a bubble sort algorithm.
+     *
+     * @param words the array of strings to sort
+     * @return the sorted array
+     */
     String[] sort(String[] words) {  //bubble sort
         boolean sorted = false;
         String sTmp;
@@ -252,6 +323,12 @@ public class Index5 {
 
      //---------------------------------
 
+    /**
+     * Persists the collection sources metadata and inverted index dictionary
+     * out to a target storage file path on the local disk.
+     *
+     * @param storageName the name of the file
+     */
     public void store(String storageName) {
         try {
             String pathToStorage = "C:/Users/zizo/Downloads/is322_HW_1/tmp11/tmp11/rl/"+storageName;
@@ -276,7 +353,11 @@ public class Index5 {
                 Posting p = dd.pList;
                 while (p != null) {
                     //    System.out.print( p.docId + "," + p.dtf + ":");
-                    wr.write(p.docId + "," + p.dtf + ":");
+                    wr.write(p.docId + "," + p.dtf);
+                    for (int pos : p.positions) {
+                        wr.write("," + pos);
+                    }
+                    wr.write(":");
                     p = p.next;
                 }
                 wr.write("\n");
@@ -290,6 +371,12 @@ public class Index5 {
         }
     }
 //=========================================    
+    /**
+     * Verifies if a given index storage file currently exists on disk.
+     *
+     * @param storageName the name of the file to check
+     * @return true if the index cache file exists, false otherwise
+     */
     public boolean storageFileExists(String storageName){
         java.io.File f = new java.io.File("C:/Users/zizo/Downloads/is322_HW_1/tmp11/tmp11/rl/"+storageName);
         if (f.exists() && !f.isDirectory())
@@ -298,6 +385,11 @@ public class Index5 {
             
     }
 //----------------------------------------------------    
+    /**
+     * Creates a new placeholder index storage file with an "end" marker.
+     *
+     * @param storageName the target storage file name
+     */
     public void createStore(String storageName) {
         try {
             String pathToStorage = "C:/Users/zizo/Downloads/is322_HW_1/tmp11/tmp11/rl/"+storageName;
@@ -311,6 +403,13 @@ public class Index5 {
     }
 //----------------------------------------------------      
      //load index from hard disk into memory
+    /**
+     * Loads the stored inverted index from local disk into memory.
+     * Reconstructs the source documents mappings and dictionary entries.
+     *
+     * @param storageName the target file to load from
+     * @return the reconstructed dictionary/inverted index map
+     */
     public HashMap<String, DictEntry> load(String storageName) {
         try {
             String pathToStorage = "C:/Users/zizo/Downloads/is322_HW_1/tmp11/tmp11/rl/"+storageName;
@@ -349,11 +448,15 @@ public class Index5 {
                 String[] ss1bx;   //posting
                 for (int i = 0; i < ss1b.length; i++) {
                     ss1bx = ss1b[i].split(",");
+                    Posting newPosting = new Posting(Integer.parseInt(ss1bx[0]), Integer.parseInt(ss1bx[1]));
+                    for (int j = 2; j < ss1bx.length; j++) {
+                        newPosting.positions.add(Integer.parseInt(ss1bx[j]));
+                    }
                     if (index.get(ss1a[0]).pList == null) {
-                        index.get(ss1a[0]).pList = new Posting(Integer.parseInt(ss1bx[0]), Integer.parseInt(ss1bx[1]));
+                        index.get(ss1a[0]).pList = newPosting;
                         index.get(ss1a[0]).last = index.get(ss1a[0]).pList;
                     } else {
-                        index.get(ss1a[0]).last.next = new Posting(Integer.parseInt(ss1bx[0]), Integer.parseInt(ss1bx[1]));
+                        index.get(ss1a[0]).last.next = newPosting;
                         index.get(ss1a[0]).last = index.get(ss1a[0]).last.next;
                     }
                 }

@@ -4,6 +4,8 @@
  */
 package invertedIndex;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author ehab
@@ -14,6 +16,7 @@ public class Posting {
     public Posting next = null;
     int docId;
     int dtf = 1;
+    public ArrayList<Integer> positions = new ArrayList<>();
 
     Posting(int id, int t) {
         docId = id;
