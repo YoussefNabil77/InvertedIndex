@@ -331,7 +331,7 @@ public class Index5 {
      */
     public void store(String storageName) {
         try {
-            String pathToStorage = "C:/Users/zizo/Downloads/is322_HW_1/tmp11/tmp11/rl/"+storageName;
+            String pathToStorage = "/Users/youssef/Downloads/4_5990032386258115504/tmp11/tmp11/rl/"+storageName;
             Writer wr = new FileWriter(pathToStorage);
             for (Map.Entry<Integer, SourceRecord> entry : sources.entrySet()) {
                 System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue().URL + ", Value = " + entry.getValue().title + ", Value = " + entry.getValue().text);
@@ -378,7 +378,7 @@ public class Index5 {
      * @return true if the index cache file exists, false otherwise
      */
     public boolean storageFileExists(String storageName){
-        java.io.File f = new java.io.File("C:/Users/zizo/Downloads/is322_HW_1/tmp11/tmp11/rl/"+storageName);
+        java.io.File f = new java.io.File("/Users/youssef/Downloads/4_5990032386258115504/tmp11/tmp11/rl/"+storageName);
         if (f.exists() && !f.isDirectory())
             return true;
         return false;
@@ -392,7 +392,7 @@ public class Index5 {
      */
     public void createStore(String storageName) {
         try {
-            String pathToStorage = "C:/Users/zizo/Downloads/is322_HW_1/tmp11/tmp11/rl/"+storageName;
+            String pathToStorage = "/Users/youssef/Downloads/4_5990032386258115504/tmp11/tmp11/rl/"+storageName;
             Writer wr = new FileWriter(pathToStorage);
             wr.write("end" + "\n");
             wr.close();
@@ -412,7 +412,7 @@ public class Index5 {
      */
     public HashMap<String, DictEntry> load(String storageName) {
         try {
-            String pathToStorage = "C:/Users/zizo/Downloads/is322_HW_1/tmp11/tmp11/rl/"+storageName;
+            String pathToStorage = "/Users/youssef/Downloads/4_5990032386258115504/tmp11/tmp11/rl/"+storageName;
             sources = new HashMap<Integer, SourceRecord>();
             index = new HashMap<String, DictEntry>();
             BufferedReader file = new BufferedReader(new FileReader(pathToStorage));
