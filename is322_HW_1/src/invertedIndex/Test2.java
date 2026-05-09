@@ -1,6 +1,5 @@
 package invertedIndex;
 
-import java.util.*;
 import java.io.*;
 
 public class Test2 {
@@ -37,6 +36,19 @@ public class Test2 {
         index.buildIndexFromWeb(crawler.pageContents, crawler.pageUrls);
 
         System.out.println("Unique terms indexed: " + index.getIndexSize());
+        
+        // ===== TASK 3: Query Processing =====
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        while (true) {
+            System.out.print("\nEnter query (or type exit): ");
+            String query = br.readLine();
+            if (query.equalsIgnoreCase("exit")) {
+                break;
+            }
+            System.out.println("\nSearch Results:");
+            System.out.println(index.find_24_01(query));
+        }
 
 
         System.out.println("\nProgram ended.");

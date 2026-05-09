@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import static java.lang.Math.log10;
 import static java.lang.Math.sqrt;
-import java.util.HashMap;
-
 
 import java.util.*;
 import java.io.PrintWriter;
@@ -273,7 +271,12 @@ public class Index5 {
         String[] words = phrase.split("\\W+");
         int len = words.length;
         
+        if (len == 0) {
+            return "No results";
+        }
+
         //fix this if word is not in the hash table will crash...
+        // FIXED
         String first = words[0].toLowerCase();
 
         if (!index.containsKey(first)) {
@@ -283,7 +286,11 @@ public class Index5 {
         Posting posting = index.get(first).pList;
         int i = 1;
         while (i < len) {
+            if (!index.containsKey(words[i].toLowerCase())) {
+                return "No results";
+            }
             posting = intersect(posting, index.get(words[i].toLowerCase()).pList);
+            
             i++;
         }
         while (posting != null) {
