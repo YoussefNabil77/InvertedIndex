@@ -13,9 +13,9 @@ import java.io.InputStreamReader;
 import static java.lang.Math.log10;
 import static java.lang.Math.sqrt;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+
+
+import java.util.*;
 import java.io.PrintWriter;
 
 /**
@@ -467,6 +467,42 @@ public class Index5 {
             e.printStackTrace();
         }
         return index;
+    }
+
+
+    public HashMap<Integer, SourceRecord> getSources() {
+        return new HashMap<>(sources);
+    }
+
+    public int getIndexSize() {
+        return index.size();
+    }
+
+    public void buildIndexFromWeb(List<String> pageContents, List<String> pageUrls) {
+        int fid = 0;
+        for (int i = 0; i < pageContents.size(); i++) {
+            String content = pageContents.get(i);
+            String url = pageUrls.get(i);
+
+            // store page metadata (id, url as path, url as title, no raw text)
+            sources.put(fid, new SourceRecord(fid, url, url, "notext"));
+
+            // split content into lines and index each one
+            String[] lines = content.split("\n");
+            int flen = 0;
+            int posOffset = 0;
+            for (String line : lines) {
+                int wordsInLine = indexOneLine(line, fid, posOffset);
+                flen += wordsInLine;
+                posOffset += wordsInLine;
+            }
+
+            sources.get(fid).length = flen;
+            System.out.println("Indexed page " + fid + ": " + url + " (" + flen + " words)");
+            fid++;
+        }
+        System.out.println("\n--- Indexing complete: " + fid + " pages, "
+                + index.size() + " unique terms ---\n");
     }
 }
 

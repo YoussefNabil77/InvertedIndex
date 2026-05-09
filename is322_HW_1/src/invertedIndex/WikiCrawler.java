@@ -12,7 +12,12 @@ public class WikiCrawler {
     private static final int MAX_PAGES = 10;
     private static final String BASE_URL = "https://en.wikipedia.org";
 
-    public static void main(String[] args) {
+
+    public List<String> pageContents = new ArrayList<>();
+    public List<String> pageUrls     = new ArrayList<>();
+
+
+    public void crawl(String[] args) {
 
         String seedUrl = BASE_URL + "/wiki/List_of_pharaohs";
 
@@ -41,6 +46,8 @@ public class WikiCrawler {
                         .get();
 
                 System.out.println("Title: " + doc.title());
+                pageContents.add(doc.body().text());
+                pageUrls.add(url);
 
                 count++;
 
