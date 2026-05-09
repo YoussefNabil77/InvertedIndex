@@ -82,7 +82,7 @@ public class Index5 {
         System.out.println("------------------------------------------------------");
         System.out.println("*** Number of terms = " + index.size());
     }
- 
+
     //-----------------------------------------------
     /**
      * Reads a list of local file paths and builds the inverted index by
@@ -112,7 +112,7 @@ public class Index5 {
         //   printDictionary();
     }
 
-    //----------------------------------------------------------------------------  
+    //----------------------------------------------------------------------------
     /**
      * Parses a single line of text from a document, ignoring stop words,
      * stemming valid terminology, and updating the dictionary and posting lists.
@@ -142,7 +142,7 @@ public class Index5 {
             }
             // add document id to the posting list
             if (!index.get(word).postingListContains(fid)) {
-                index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term 
+                index.get(word).doc_freq += 1; //set doc freq to the number of doc that contain the term
                 if (index.get(word).pList == null) {
                     index.get(word).pList = new Posting(fid);
                     index.get(word).pList.positions.add(word_pos);
@@ -168,9 +168,9 @@ public class Index5 {
         return flen;
     }
 
-//----------------------------------------------------------------------------  
+//----------------------------------------------------------------------------
     /**
-     * Checks whether a given word is a stop word or is too short 
+     * Checks whether a given word is a stop word or is too short
      * to be indexed.
      *
      * @param word the word to check
@@ -187,7 +187,7 @@ public class Index5 {
         return false;
 
     }
-//----------------------------------------------------------------------------  
+//----------------------------------------------------------------------------
 
     /**
      * Reduces a given word to its stem root. (Currently skips stemming).
@@ -203,7 +203,7 @@ public class Index5 {
 //        return s.toString();
     }
 
-    //----------------------------------------------------------------------------  
+    //----------------------------------------------------------------------------
     /**
      * Computes the intersection of two sorted posting lists.
      *
@@ -222,7 +222,7 @@ public class Index5 {
 
             //          3 do if docID ( p 1 ) = docID ( p2 )
             if (pL1.docId == pL2.docId) {
- 
+
 //          4   then ADD ( answer, docID ( p1 ))
                 // answer.add(pL1.docId);
                 Posting newNode = new Posting(pL1.docId);
@@ -234,7 +234,7 @@ public class Index5 {
                     last.next = newNode;
                     last = last.next;
                 }
- 
+
 //          5       p1 ← next ( p1 )
                 pL1 = pL1.next;
 
@@ -242,10 +242,10 @@ public class Index5 {
                 pL2 = pL2.next;
 
             }
- 
+
  //          7   else if docID ( p1 ) < docID ( p2 )
             else if (pL1.docId < pL2.docId) {
-            
+
 //          8        then p1 ← next ( p1 )
                 pL1 = pL1.next;
 
@@ -254,7 +254,7 @@ public class Index5 {
                 pL2 = pL2.next;
             }
         }
- 
+
 //      10 return answer
         return answer;
     }
@@ -266,11 +266,11 @@ public class Index5 {
      * @param phrase the string containing the search terms
      * @return an aggregated string displaying related documents and metadata
      */
-    public String find_24_01(String phrase) { // any mumber of terms non-optimized search 
+    public String find_24_01(String phrase) { // any mumber of terms non-optimized search
         String result = "";
         String[] words = phrase.split("\\W+");
         int len = words.length;
-        
+
         if (len == 0) {
             return "No results";
         }
@@ -290,7 +290,7 @@ public class Index5 {
                 return "No results";
             }
             posting = intersect(posting, index.get(words[i].toLowerCase()).pList);
-            
+
             i++;
         }
         while (posting != null) {
@@ -300,8 +300,8 @@ public class Index5 {
         }
         return result;
     }
-    
-    
+
+
     //---------------------------------
     /**
      * Sorts an array of strings in alphabetical order using a bubble sort algorithm.
@@ -377,7 +377,7 @@ public class Index5 {
             e.printStackTrace();
         }
     }
-//=========================================    
+//=========================================
     /**
      * Verifies if a given index storage file currently exists on disk.
      *
@@ -389,9 +389,9 @@ public class Index5 {
         if (f.exists() && !f.isDirectory())
             return true;
         return false;
-            
+
     }
-//----------------------------------------------------    
+//----------------------------------------------------
     /**
      * Creates a new placeholder index storage file with an "end" marker.
      *
@@ -403,12 +403,12 @@ public class Index5 {
             Writer wr = new FileWriter(pathToStorage);
             wr.write("end" + "\n");
             wr.close();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-//----------------------------------------------------      
+//----------------------------------------------------
      //load index from hard disk into memory
     /**
      * Loads the stored inverted index from local disk into memory.

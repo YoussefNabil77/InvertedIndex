@@ -36,18 +36,24 @@ public class Test2 {
         index.buildIndexFromWeb(crawler.pageContents, crawler.pageUrls);
 
         System.out.println("Unique terms indexed: " + index.getIndexSize());
-        
-        // ===== TASK 3: Query Processing =====
+
+        // Instantiate the new CosineSimilarity ranking processor
+        CosineSimilarity cosine = new CosineSimilarity(index);
+
+        // ===== TASK 3 & 4: Query Processing =====
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        while (true) {
+        while (true){
             System.out.print("\nEnter query (or type exit): ");
             String query = br.readLine();
             if (query.equalsIgnoreCase("exit")) {
                 break;
-            }
-            System.out.println("\nSearch Results:");
+           }
+            System.out.println("\n--- Task 3 Search Results (Boolean Intersection) ---");
             System.out.println(index.find_24_01(query));
+
+            System.out.println("\n--- Task 4 Search Results (Cosine Similarity Ranking) ---");
+            System.out.println(cosine.search(query));
         }
 
 
