@@ -52,8 +52,13 @@ public class Test2 {
             System.out.println("\n--- Task 3 Search Results (Boolean Intersection) ---");
             System.out.println(index.find_24_01(query));
 
-            System.out.println("\n--- Task 4 Search Results (Cosine Similarity Ranking) ---");
-            System.out.println(cosine.search(query));
+            System.out.println("\n--- Task 4 & 5 Search Results (Cosine Similarity & Rank Top 10) ---");
+            java.util.Map<Integer, Double> simScores = cosine.getCosineSimilarities(query);
+            if (simScores == null || simScores.isEmpty()) {
+                System.out.println("No matching documents found.");
+            } else {
+                Ranker.rankTopK(simScores, index.sources, 10);
+            }
         }
 
 

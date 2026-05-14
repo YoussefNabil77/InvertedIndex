@@ -35,10 +35,10 @@ public class CosineSimilarity {
             while (p != null) {
                 double tf = p.dtf;
                 double weight = tf * idf;
-                
+
                 double currentNormSq = index5.sources.get(p.docId).norm;
                 index5.sources.get(p.docId).norm = currentNormSq + (weight * weight);
-                
+
                 p = p.next;
             }
         }
@@ -51,12 +51,12 @@ public class CosineSimilarity {
     }
 
     /**
-     * Executes a search query using Cosine Similarity ranking.
+     * Executes a search query using Cosine Similarity scoring.
      *
      * @param query the search phrase
-     * @return Formatted string containing ranked results
+     * @return Map of document IDs and their normalized cosine similarity scores
      */
-    public String search(String query) {
+    public Map<Integer, Double> getCosineSimilarities(String query) {
         String[] words = query.split("\\W+");
         
         // 1. Calculate query Term Frequencies (TF)
@@ -69,7 +69,7 @@ public class CosineSimilarity {
         }
 
         if (queryTf.isEmpty()) {
-            return "No valid query terms.";
+            return new HashMap<>();
         }
 
         double queryNormSq = 0.0;
@@ -90,7 +90,7 @@ public class CosineSimilarity {
         }
         
         if (queryNormSq == 0.0) {
-            return "No matching documents found.";
+            return new HashMap<>();
         }
         
         double queryNorm = Math.sqrt(queryNormSq);
@@ -116,8 +116,8 @@ public class CosineSimilarity {
             }
         }
         
-        // 4. Calculate Final Cosine Similarity and Rank
-        List<Map.Entry<Integer, Double>> rankedDocs = new ArrayList<>();
+        // 4. Calculate Final Normalized Score (Scores[doc] = Scores[doc] / Length[doc])
+        Map<Integer, Double> normalizedScores = new HashMap<>();
         for (Map.Entry<Integer, Double> entry : scores.entrySet()) {
             int docId = entry.getKey();
             double dotProduct = entry.getValue(); // This is Scores[doc]
@@ -128,28 +128,10 @@ public class CosineSimilarity {
             if (docLength > 0) {
                 // Normalize exactly as requested: Scores[doc] = Scores[doc] / Length[doc]
                 double normalizedScore = dotProduct / docLength;
-                rankedDocs.add(new AbstractMap.SimpleEntry<>(docId, normalizedScore));
+                normalizedScores.put(docId, normalizedScore);
             }
         }
         
-        // Sort descending by similarity score
-        rankedDocs.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
-        
-        // 5. Format results
-        if (rankedDocs.isEmpty()) {
-            return "No results found.";
-        }
-
-        StringBuilder result = new StringBuilder();
-        int rank = 1;
-        for (Map.Entry<Integer, Double> entry : rankedDocs) {
-            int docId = entry.getKey();
-            double score = entry.getValue();
-            SourceRecord record = index5.sources.get(docId);
-            result.append(String.format("%d. [Doc %d] Similarity: %.4f - %s\n", rank, docId, score, record.title));
-            rank++;
-        }
-        
-        return result.toString();
+        return normalizedScores;
     }
 }
