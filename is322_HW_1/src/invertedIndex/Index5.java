@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package invertedIndex;
 
 import java.io.BufferedReader;
@@ -16,10 +12,7 @@ import static java.lang.Math.sqrt;
 import java.util.*;
 import java.io.PrintWriter;
 
-/**
- *
- * @author ehab
- */
+
 public class Index5 {
 
     //--------------------------------------------
@@ -484,6 +477,86 @@ public class Index5 {
     public int getIndexSize() {
         return index.size();
     }
+    /**
+     * Finds documents where two posting lists have words
+     * appearing exactly 'gap' positions apart.
+     */
+    Posting positionalIntersect(Posting pL1, Posting pL2, int gap) {
+        Posting answer = null;
+        Posting last = null;
+
+        while (pL1 != null && pL2 != null) {
+            if (pL1.docId == pL2.docId) {
+                List<Integer> matchedPositions = new ArrayList<>();
+                for (int pos1 : pL1.positions) {
+                    for (int pos2 : pL2.positions) {
+                        if (pos2 == pos1 + gap) {
+                            matchedPositions.add(pos1);
+                            break;
+                        }
+                    }
+                }
+                if (!matchedPositions.isEmpty()) {
+                    Posting newNode = new Posting(pL1.docId);
+                    newNode.positions.addAll(matchedPositions);
+                    if (answer == null) {
+                        answer = newNode;
+                        last = answer;
+                    } else {
+                        last.next = newNode;
+                        last = last.next;
+                    }
+                }
+                pL1 = pL1.next;
+                pL2 = pL2.next;
+            } else if (pL1.docId < pL2.docId) {
+                pL1 = pL1.next;
+            } else {
+                pL2 = pL2.next;
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Searches for documents where query words appear
+     * consecutively (phrase search using positional index).
+     */
+    public String phraseSearch(String phrase) {
+        String result = "";
+        String[] words = phrase.split("\\W+");
+
+        // filter stop words
+        List<String> filteredWords = new ArrayList<>();
+        for (String word : words) {
+            word = word.toLowerCase();
+            if (!stopWord(word)) {
+                filteredWords.add(stemWord(word));
+            }
+        }
+
+        if (filteredWords.isEmpty()) return "No results";
+
+        String first = filteredWords.get(0);
+        if (!index.containsKey(first)) return "No results";
+
+        Posting posting = index.get(first).pList;
+
+        for (int i = 1; i < filteredWords.size(); i++) {
+            String w = filteredWords.get(i);
+            if (!index.containsKey(w)) return "No results";
+            posting = positionalIntersect(posting, index.get(w).pList, i);
+            if (posting == null) return "No results";
+        }
+
+        while (posting != null) {
+            result += "\t" + posting.docId + " - "
+                    + sources.get(posting.docId).title + " - "
+                    + sources.get(posting.docId).length + "\n";
+            posting = posting.next;
+        }
+        return result.isEmpty() ? "No results" : result;
+    }
 
     public void buildIndexFromWeb(List<String> pageContents, List<String> pageUrls) {
         int fid = 0;
@@ -512,5 +585,3 @@ public class Index5 {
                 + index.size() + " unique terms ---\n");
     }
 }
-
-//=====================================================================

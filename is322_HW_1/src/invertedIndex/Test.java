@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package invertedIndex;
 
 import java.io.BufferedReader;
@@ -9,21 +5,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-/**
- *
- * @author ehab
- */
 public class Test {
 
     public static void main(String args[]) throws IOException {
+
         Index5 index = new Index5();
-        //|**  change it to your collection directory 
-        //|**  in windows "C:\\tmp11\\rl\\collection\\"       
+
         String files = "/Users/youssef/Downloads/4_5990032386258115504/tmp11/tmp11/rl/collection/";
 
         File file = new File(files);
-        //|** String[] 	list()
-        //|**  Returns an array of strings naming the files and directories in the directory denoted by this abstract pathname.
         String[] fileList = file.list();
 
         fileList = index.sort(fileList);
@@ -32,18 +22,31 @@ public class Test {
         for (int i = 0; i < fileList.length; i++) {
             fileList[i] = files + fileList[i];
         }
+
         index.buildIndex(fileList);
         index.store("index");
         index.printDictionary();
 
-        String test3 = "data  should plain greatest comif"; // data  should plain greatest comif
-        System.out.println("Boo0lean Model result = \n" + index.find_24_01(test3));
+        // Task 6 - Positional Index (Bonus)
+        Index5 testIndex = new Index5();
+        testIndex.sources.put(0, new SourceRecord(0, "doc1", "doc1", "notext"));
+        testIndex.sources.put(1, new SourceRecord(1, "doc2", "doc2", "notext"));
+        testIndex.N = 2;
 
+        testIndex.indexOneLine("Cairo University Zayed City is a new CU branch", 0, 0);
+        testIndex.indexOneLine("Zayed attending in AinShams University in Cairo", 1, 0);
+
+        System.out.println("doc1: Cairo University Zayed City is a new CU branch");
+        System.out.println("doc2: Zayed attending in AinShams University in Cairo");
+        System.out.println("\nPositional Index Result for query 'Cairo University Zayed City':");
+        System.out.println(testIndex.phraseSearch("Cairo University Zayed City"));
+
+        // Task 3 - Query Loop
         String phrase = "";
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
         do {
-            System.out.println("Print search phrase: ");
-            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Print search query: ");
             phrase = in.readLine();
             System.out.println(index.find_24_01(phrase));
         } while (!phrase.isEmpty());
